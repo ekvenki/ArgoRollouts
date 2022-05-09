@@ -1,0 +1,31 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  name: kayenta-template
+  namespace: apex  
+spec:
+  args:
+  - name: stable-hash
+  - name: canary-hash
+  metrics:
+  - name: mann-whitney
+    provider:
+      kayenta:
+        address: https://kayenta.intuit.com
+        application: guestbook
+        canaryConfigName: my-test
+        interval: 60
+        count: 3
+        # loopback will cause start time value to be equal to start of analysis
+        # lookback: true
+        thresholds:
+          pass: 90
+          marginal: 75
+        scopes:
+        - name: default
+          controlScope:
+            scope: app=guestbook and rollouts-pod-template-hash={{args.stable-hash}}
+            step: 60
+          experimentScope:
+            scope: app=guestbook and rollouts-pod-template-hash={{args.canary-hash}}
+            step: 60

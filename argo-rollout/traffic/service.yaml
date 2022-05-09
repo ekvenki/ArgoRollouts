@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: target-stable-service
+  namespace: apex  
+spec:
+  ports:
+  - port: 80
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    app: target-service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: target-canary-service
+  namespace: apex  
+spec:
+  ports:
+  - port: 80
+    targetPort: http
+    protocol: TCP
+    name: http
+  selector:
+    app: target-service

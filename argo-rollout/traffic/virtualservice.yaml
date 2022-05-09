@@ -1,0 +1,23 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: target-service-vsvc
+  namespace: apex
+spec:
+  hosts:
+  - target-service.apex.svc.cluster.local
+  exportTo:
+  - "*"  
+  http:
+  - name: primary
+    route:
+      - destination:
+          host: target-stable-service
+          port:
+            number: 80
+        weight: 100
+      - destination:
+          host: target-canary-service
+          port:
+            number: 80
+        weight: 0

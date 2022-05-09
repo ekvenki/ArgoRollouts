@@ -1,0 +1,45 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  name: target-service-rollout
+  namespace: apex  
+spec:
+  replicas: 1
+  strategy:
+    canary:
+      trafficRouting:
+        istio:
+           virtualService: 
+            name: target-service-vsvc
+            routes:
+            - primary
+      stableService: target-stable-service
+      canaryService: target-canary-service 
+      steps:
+      - setWeight: 5
+      - pause: {}
+  revisionHistoryLimit: 2
+  selector:
+    matchLabels:
+      app: target-service
+  template:
+    metadata:
+      labels:
+        app: target-service
+        istio-injection: enabled
+    spec:
+      containers:
+      - name: target-service
+        image: parthakonwar/target-service:v1
+        ports:
+        - name: http
+          containerPort: 8080
+          protocol: TCP
+        env:
+        - name: VERSION
+          value: "v1"          
+        resources:
+          requests:
+            memory: 32Mi
+            cpu: 5m
+
