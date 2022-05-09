@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: target-service-v1
+  namespace: apex  
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: target-service
+      version: v1
+  template:
+    metadata:
+      labels:
+        app: target-service
+        version: v1
+    spec:
+      containers:
+        - name: target-service
+          image: parthakonwar/target-service:v1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: VERSION
+              value: "v1"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: target-service-v2
+  namespace: apex  
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: target-service
+      version: v2
+  template:
+    metadata:
+      labels:
+        app: target-service
+        version: v2
+    spec:
+      containers:
+        - name: target-service
+          image: parthakonwar/target-service:v2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: VERSION
+              value: "v2"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: target-service-baseline
+  namespace: apex  
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: target-service
+      version: baseline
+  template:
+    metadata:
+      labels:
+        app: target-service
+        version: baseline
+    spec:
+      containers:
+        - name: target-service
+          image: parthakonwar/target-service:v1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+          env:
+            - name: VERSION
+              value: "baseline"
+---              
+apiVersion: v1
+kind: Service
+metadata:
+  name: target-service
+  namespace: apex  
+  labels:
+    app: target-service
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8080
+    name: http
+  selector:
+    app: target-service
